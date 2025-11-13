@@ -1,6 +1,6 @@
 #include "stdint.h"
-#ifndef chip_8.h
-#define chip_8.h
+#ifndef chip_8_h
+#define chip_8_h
 
 #define MEMORY 4096
 #define WIDTH 64
@@ -23,7 +23,7 @@ typedef struct {
     int draw_flag;
 } Chip8;
 
-uint8_t chip8_fontset[80] = {
+static uint8_t chip8_fontset[80] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, 
     0x20, 0x60, 0x20, 0x20, 0x70, 
     0xF0, 0x10, 0xF0, 0x80, 0xF0, 
@@ -45,3 +45,5 @@ uint8_t chip8_fontset[80] = {
 void ini_chip8(Chip8* chip);
 void load_fontset(Chip8* chip);
 int loader_rom(Chip8* chip, char *filename);
+
+#endif

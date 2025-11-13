@@ -1,6 +1,7 @@
 #include "chip8.h"
 #include "stdio.h"
 #include "stdlib.h"
+#include "string.h"
 
 void ini_chip8(Chip8* chip){
     memset(chip->memory, 0, sizeof(MEMORY));
@@ -20,7 +21,7 @@ void ini_chip8(Chip8* chip){
 
 void load_fontset(Chip8* chip){
     for(int i = 0; i < 80; i++){
-        memset(chip->memory[0x50 + 5 * i], i , sizeof(MEMORY));
+        memset(chip->memory + 0x50 + 5 * i, chip8_fontset[i] , sizeof(MEMORY));
     }
 }
 
@@ -28,9 +29,17 @@ int loader_rom(Chip8* chip, char *filename){
     FILE *file = fopen(filename, "rb");
     if(file == NULL){
         printf("Error opening file!");
+        return 1;
     }
+    fseek(file, 0, SEEK_END);
+    int file_size = ftell(file);
+    if(file_size > MEMORY){
+        printf("file_size > memory");
+        return 1;
+    }
+    rewind(file);
 
-    int bytes_read = fread(chip->memory + 0x200, 1, 4024, file);
+    int bytes_read = fread(chip->memory + 0x200, 1, file_size, file);
     fclose(file);
     return 0;
 }
