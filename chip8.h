@@ -1,17 +1,18 @@
 #include "stdint.h"
-#ifndef chip_8_h
-#define chip_8_h
+#ifndef CHIP_8_H
+#define CHIP_8_H
 
 #define MEMORY 4096
 #define WIDTH 64
 #define HEIGHT 32
+#define SCALE 10
 #define STACK 16
 #define NUM_REGISTERS 16
 #define NUM_KEYS 16
 
 typedef struct {
     uint8_t memory[MEMORY];
-    uint16_t registers[NUM_REGISTERS];
+    uint16_t V[NUM_REGISTERS];
     uint8_t display[WIDTH * HEIGHT];
     uint16_t I;
     uint8_t sound_timer;
@@ -20,6 +21,7 @@ typedef struct {
     uint16_t stack[STACK];
     uint8_t sp;
     uint8_t keys[NUM_KEYS];
+    uint16_t op;
     int draw_flag;
 } Chip8;
 
@@ -42,8 +44,9 @@ static uint8_t chip8_fontset[80] = {
     0xF0, 0x80, 0xF0, 0x80, 0x80
 };
 
-void ini_chip8(Chip8* chip);
-void load_fontset(Chip8* chip);
-int loader_rom(Chip8* chip, char *filename);
+void ini_chip8(Chip8 *chip);
+void load_fontset(Chip8 *chip);
+int loader_rom(Chip8 *chip, char *filename);
+void cycle_chip8(Chip8 *chip);
 
 #endif
