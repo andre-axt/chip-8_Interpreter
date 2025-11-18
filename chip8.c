@@ -43,6 +43,19 @@ int loader_rom(Chip8* chip, char *filename){
     return 0;
 }
 
+void check_key_press(Chip8 *chip){
+    chip->op = chip->memory[chip->pc] << 8 | chip->memory[chip->pc + 1];
+    uint8_t Vx = (chip->op & 0x0F00) >> 8;
+    for(int i = 0; i < 16; i++){
+        if(chip->keys[i] == 1){
+            chip->V[Vx] = i;
+            waiting_for_key = 0;
+            chip->pc += 2;
+            return;
+        }
+    }
+}
+
 void cycle_chip8(Chip8 *chip){
     chip->op = chip->memory[chip->pc] << 8 | chip->memory[chip->pc + 1];
     uint8_t Vx = (chip->op & 0x0F00) >> 8;
@@ -60,7 +73,7 @@ void cycle_chip8(Chip8 *chip){
                 }
             }
             chip->draw_flag = 1;
-            chip->pc++;
+            chip->pc += 2;
             break;
 
         case 0x00EE:
@@ -84,33 +97,33 @@ void cycle_chip8(Chip8 *chip){
 
     case 0x3000:
         if(Vx == kk){
-            chip->pc++;
+            chip->pc += 2;
         }
-        chip->pc++;
+        chip->pc += 2;
         break;
 
     case 0x4000:
         if(Vx != kk){
-            chip->pc++;
+            chip->pc += 2;
         }
-        chip->pc++;
+        chip->pc += 2;
         break;
 
     case 0x5000:
         if(Vx == Vy){
-            chip->pc++;
+            chip->pc += 2;
         }
-        chip->pc++;
+        chip->pc += 2;
         break;
     
     case 0x6000:
         Vx = kk;
-        chip->pc++;
+        chip->pc += 2;
         break;
 
     case 0x7000:
         Vx = Vx + kk;
-        chip->pc++;
+        chip->pc += 2;
         break;
 
     case 0x8000:
@@ -118,22 +131,22 @@ void cycle_chip8(Chip8 *chip){
         {
         case 0x8000:
             Vx = Vy;
-            chip->pc++;
+            chip->pc += 2;
             break;
         
         case 0x8001:
             Vx = Vx | Vy;
-            chip->pc++;
+            chip->pc += 2;
             break;
 
         case 0x8002:
             Vx = Vx & Vy;
-            chip->pc++;
+            chip->pc += 2;
             break;
         
         case 0x8003:
             Vx = Vx ^ Vy;
-            chip->pc++;
+            chip->pc += 2;
             break;
         
         case 0x8004: // *
@@ -143,7 +156,7 @@ void cycle_chip8(Chip8 *chip){
             }else{
                 chip->V[15] = 0;
             }
-            chip->pc++;
+            chip->pc += 2;
             break;
 
         case 0x8005:
@@ -153,7 +166,7 @@ void cycle_chip8(Chip8 *chip){
             }else{
                 chip->V[15] = 0;
             }
-            chip->pc++;
+            chip->pc += 2;
             break;
 
         case 0x8006: /**/
@@ -163,7 +176,7 @@ void cycle_chip8(Chip8 *chip){
                 chip->V[15] = 0;
             }
             Vx = Vx >> 1;
-            chip->pc++;
+            chip->pc += 2;
             break;
         
         case 0x8007:
@@ -173,7 +186,7 @@ void cycle_chip8(Chip8 *chip){
                 chip->V[15] = 0;
             }
             Vx = Vx - Vy;
-            chip->pc++;
+            chip->pc += 2;
             break;
         
         case 0x800E:
@@ -183,7 +196,7 @@ void cycle_chip8(Chip8 *chip){
                 chip->V[15] = 0;
             }
             Vx = Vx << 1;
-            chip->pc++;
+            chip->pc += 2;
             break;
 
 
@@ -194,13 +207,13 @@ void cycle_chip8(Chip8 *chip){
 
     case 0x9000:
         if(Vx != Vy){
-            chip->pc++;
+            chip->pc += 2;
         }
-        chip->pc++;
+        chip->pc += 2;
 
     case 0xA000:
         chip->I = chip->op & 0x0FFF;
-        chip->pc++;
+        chip->pc += 2;
 
     case 0xB000:
         chip->pc = (chip->op & 0x0FFF) + chip->V[0];
@@ -208,7 +221,7 @@ void cycle_chip8(Chip8 *chip){
     case 0xC000:
         uint8_t random_byte = rand() % 256;
         Vx = random_byte & kk;
-        chip->pc++;
+        chip->pc += 2;
 
     case 0xD000:
         uint8_t n = chip->op & 0x000F;
@@ -236,6 +249,63 @@ void cycle_chip8(Chip8 *chip){
         }
         chip->draw_flag = 1;
         chip->pc++;
+    
+    case 0xE000:
+        switch (chip->op & 0xF0FF)
+        {
+        case 0xE09E:
+            if(chip->keys[chip->V[Vx]] == 1){
+                chip->pc += 2;
+            }
+            chip->pc += 2;
+            break;
+        
+        case 0xE0A1:
+            if(chip->keys[chip->V[Vx]] == 0){
+                chip->pc += 2;
+            }
+            chip->pc += 2;
+            break;
+
+        default:
+            break;
+        }
+
+    case 0xF000:
+        switch (chip->op & 0xF0FF)
+        {
+        case 0xF007:
+            chip->delay_timer = Vx;
+            chip->pc += 2;
+            break;
+
+        case 0xF00A:
+            waiting_for_key = 1;
+            break;
+
+        case 0xF015:
+            chip->delay_timer = Vx;
+            chip->pc += 2;
+            break;
+
+        case 0xF018:
+            chip->sound_timer = Vx;
+            chip->pc += 2;
+            break;
+
+        case 0xF01E:
+            chip->I += Vx;
+            chip->pc += 2;
+            break;
+
+        case 0xF029:
+            chip->I = 0x50 + (chip->V[Vx] & 0xF) * 5;
+            break;
+
+        
+        default:
+            break;
+        }
 
     default:
         break;

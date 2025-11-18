@@ -9,6 +9,8 @@
 #define STACK 16
 #define NUM_REGISTERS 16
 #define NUM_KEYS 16
+uint8_t waiting_for_key = 0;
+uint8_t key_pressed = 0;
 
 typedef struct {
     uint8_t memory[MEMORY];
@@ -47,6 +49,7 @@ static uint8_t chip8_fontset[80] = {
 void ini_chip8(Chip8 *chip);
 void load_fontset(Chip8 *chip);
 int loader_rom(Chip8 *chip, char *filename);
+void check_key_press();
 void cycle_chip8(Chip8 *chip);
 
 #endif
