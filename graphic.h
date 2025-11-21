@@ -2,10 +2,10 @@
 #define GRAPHIC_H
 #include "chip8.h"
 #include "graphic.h"
-#include <SDL2/SDL>
+#include <SDL2/SDL.h>
 
-int ini_SDL();
-void update_SDL(Chip8* chip);
+int ini_SDL(SDL_Window* window, SDL_Renderer* renderer);
+void update_SDL(Chip8* chip, SDL_Renderer* renderer);
 int map_key(SDL_Keycode key);
 void handle_input();
 int get_pressed_key();

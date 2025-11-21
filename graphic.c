@@ -1,10 +1,7 @@
 #include "chip8.h"
 #include <SDL2/SDL.h>
 
-SDL_Window* window = NULL;
-SDL_Renderer* renderer = NULL;
-
-int ini_SDL() {
+int ini_SDL(SDL_Window* window, SDL_Renderer* renderer) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0){
         printf("Error ini_SDL: %s\n", SDL_GetError());
         return -1;
@@ -16,7 +13,7 @@ int ini_SDL() {
     return 0;
 }
 
-void update_SDL(Chip8* chip) {
+void update_SDL(Chip8* chip, SDL_Renderer* renderer) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 

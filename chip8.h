@@ -1,4 +1,5 @@
 #include "stdint.h"
+#include <SDL2/SDL.h>
 #ifndef CHIP_8_H
 #define CHIP_8_H
 
@@ -47,6 +48,6 @@ static uint8_t chip8_fontset[80] = {
 void ini_chip8(Chip8 *chip);
 void load_fontset(Chip8 *chip);
 int loader_rom(Chip8 *chip, char *filename);
-void cycle_chip8(Chip8 *chip);
+void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer);
 
 #endif
