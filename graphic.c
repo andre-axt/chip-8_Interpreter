@@ -1,15 +1,23 @@
 #include "chip8.h"
 #include <SDL2/SDL.h>
 
-int ini_SDL(SDL_Window* window, SDL_Renderer* renderer) {
+int ini_SDL(SDL_Window** window, SDL_Renderer** renderer) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0){
         printf("Error ini_SDL: %s\n", SDL_GetError());
         return -1;
     }
 
-    window = SDL_CreateWindow("Chip-8 Interpreter", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH * SCALE, HEIGHT * SCALE, SDL_WINDOW_SHOWN);
+    *window = SDL_CreateWindow("Chip-8 Interpreter", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH * SCALE, HEIGHT * SCALE, SDL_WINDOW_SHOWN);
+    if (*window == NULL) {
+        printf("Error creating window: %s\n", SDL_GetError());
+        return -1;
+    }
 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    *renderer = SDL_CreateRenderer(*window, -1, SDL_RENDERER_ACCELERATED);
+    if (*renderer == NULL) {
+        printf("Error creating renderer: %s\n", SDL_GetError());
+        return -1;
+    }
     return 0;
 }
 
@@ -53,17 +61,14 @@ int map_key(SDL_Keycode key) {
     }
 }
 
-void handle_input(Chip8 *chip) {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_KEYDOWN) {
-            int k = map_key(event.key.keysym.sym);
-            if (k != -1) chip->keys[k] = 1;
-        }
-        else if (event.type == SDL_KEYUP) {
-            int k = map_key(event.key.keysym.sym);
-            if (k != -1) chip->keys[k] = 0;
-        }
+void handle_input(Chip8 *chip, SDL_Event* event) {
+    if (event->type == SDL_KEYDOWN) {
+        int k = map_key(event->key.keysym.sym);
+        if (k != -1) chip->keys[k] = 1;
+    }
+    else if (event->type == SDL_KEYUP) {
+        int k = map_key(event->key.keysym.sym);
+        if (k != -1) chip->keys[k] = 0;
     }
 }
 

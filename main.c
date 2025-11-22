@@ -9,8 +9,9 @@ SDL_Renderer* renderer = NULL;
 int main(){
     Chip8 chip;
     ini_chip8(&chip);
-    ini_SDL(window, renderer);
+    ini_SDL(&window, &renderer);
     loader_rom(&chip, "test.ch8");
+    load_fontset(&chip);
     int running = 1;
     SDL_Event event;
     while (running){
@@ -22,6 +23,7 @@ int main(){
         }
         
         cycle_chip8(&chip, renderer);
+        SDL_Delay(2);
     }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

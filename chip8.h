@@ -1,7 +1,7 @@
-#include "stdint.h"
-#include <SDL2/SDL.h>
 #ifndef CHIP_8_H
 #define CHIP_8_H
+#include "stdint.h"
+#include <SDL2/SDL.h>
 
 #define MEMORY 4096
 #define WIDTH 64
@@ -13,7 +13,7 @@
 
 typedef struct {
     uint8_t memory[MEMORY];
-    uint16_t V[NUM_REGISTERS];
+    uint8_t V[NUM_REGISTERS];
     uint8_t display[WIDTH * HEIGHT];
     uint16_t I;
     uint8_t sound_timer;

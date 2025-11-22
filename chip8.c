@@ -22,6 +22,12 @@ void ini_chip8(Chip8* chip){
 
 void load_fontset(Chip8* chip){
     memcpy(&chip->memory[0x50], chip8_fontset, 80);
+
+    printf("Font loaded at 0x50: ");
+    for(int i = 0; i < 10; i++) {
+        printf("%02X ", chip->memory[0x50 + i]);
+    }
+    printf("\n");
 }
 
 int loader_rom(Chip8* chip, char *filename){
@@ -59,8 +65,9 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
             break;
 
         case 0x00EE:
-            chip->pc = chip->stack[0];
+            chip->pc = chip->stack[chip->sp];
             chip->sp--;
+            break;
         
         default:
             break;
@@ -73,7 +80,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
 
     case 0x2000:
         chip->sp++;
-        chip->stack[0] = chip->pc;
+        chip->stack[chip->sp] = chip->pc;
         chip->pc = chip->op & 0X0FFF;
         break;
 
@@ -171,6 +178,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
         default:
             break;
         }
+        break;
         
 
     case 0x9000:
@@ -239,6 +247,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
         default:
             break;
         }
+        break;
 
     case 0xF000:
         switch (chip->op & 0xF0FF)
@@ -248,7 +257,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
             break;
 
         case 0xF00A:
-            uint8_t key = get_pressed_key();
+            uint8_t key = get_pressed_key(chip);
             if(key != -1){
                 chip->V[Vx] = key;
                 chip->pc += 2;
@@ -275,6 +284,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
         default:
             break;
         }
+        break;
 
     default:
         break;
