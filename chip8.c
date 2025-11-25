@@ -253,7 +253,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
         switch (chip->op & 0xF0FF)
         {
         case 0xF007:
-            chip->delay_timer = Vx;
+            chip->delay_timer = chip->V[Vx];
             break;
 
         case 0xF00A:
@@ -265,11 +265,11 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
             break;
 
         case 0xF015:
-            chip->delay_timer = Vx;
+            chip->delay_timer = chip->V[Vx];
             break;
 
         case 0xF018:
-            chip->sound_timer = Vx;
+            chip->sound_timer = chip->V[Vx];
             break;
 
         case 0xF01E:
