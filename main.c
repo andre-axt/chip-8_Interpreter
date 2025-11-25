@@ -23,7 +23,7 @@ int main(){
         }
         
         cycle_chip8(&chip, renderer);
-        SDL_Delay(2);
+        SDL_Delay(chip.delay);
     }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
