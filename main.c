@@ -14,6 +14,10 @@ int main(){
     load_fontset(&chip);
     int running = 1;
     SDL_Event event;
+    const double timer_update = 1000 / 60;
+    int now = SDL_GetPerformanceCounter();
+    int last_time = 0;
+    double delta_time = 0;
     while (running){
         while (SDL_PollEvent(&event)) {
             if(event.type == SDL_QUIT){
@@ -21,9 +25,21 @@ int main(){
             }
             handle_input(&chip, &event);
         }
-        
+        last_time = now;
+        now = SDL_GetPerformanceCounter();
+        delta_time += (double)((now - last_time) * 1000 / (double)SDL_GetPerformanceFrequency());
+
+        if (delta_time >= timer_update){
+            if(chip.delay_timer > 0){
+                chip.delay_timer--;
+            }
+            if(chip.sound_timer > 0){
+                chip.sound_timer--;
+
+            }
+        }
+
         cycle_chip8(&chip, renderer);
-        SDL_Delay(chip.delay);
     }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
