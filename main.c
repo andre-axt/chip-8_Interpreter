@@ -25,9 +25,9 @@ int main(){
             }
             handle_input(&chip, &event);
         }
-        last_time = now;
         now = SDL_GetPerformanceCounter();
         delta_time += (double)((now - last_time) * 1000 / (double)SDL_GetPerformanceFrequency());
+        last_time = now;
 
         if (delta_time >= timer_update){
             if(chip.delay_timer > 0){
@@ -37,7 +37,7 @@ int main(){
                 chip.sound_timer--;
 
             }
-            delta_time = 0;
+            delta_time -= timer_update;
         }
 
         cycle_chip8(&chip, renderer);
