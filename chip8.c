@@ -280,7 +280,12 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
             chip->I = 0x50 + (chip->V[Vx] & 0xF) * 5;
             break;
 
-        
+        case 0xF033:
+            chip->memory[chip->I] = chip->V[Vx] / 100;
+            chip->memory[chip->I + 1] = (chip->V[Vx] / 10) % 10;
+            chip->memory[chip->I + 2] = (chip->V[Vx] % 10;
+            break;
+            
         default:
             break;
         }
