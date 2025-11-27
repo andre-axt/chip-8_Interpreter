@@ -37,6 +37,7 @@ int main(){
                 chip.sound_timer--;
 
             }
+            delta_time = 0;
         }
 
         cycle_chip8(&chip, renderer);
