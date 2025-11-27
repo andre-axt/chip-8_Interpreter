@@ -285,6 +285,18 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
             chip->memory[chip->I + 1] = (chip->V[Vx] / 10) % 10;
             chip->memory[chip->I + 2] = (chip->V[Vx] % 10;
             break;
+
+        case 0xF055:
+            for(int i = 0; i <= Vx; i++){
+                chip->memory[I + i] = chip->V[i];
+            }
+            break;
+
+        case 0xF065:
+            for(int i = 0; i <= Vx; i++){
+                chip->V[i] = chip->memory[I + i];
+            }
+            break;
             
         default:
             break;
