@@ -54,6 +54,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
     uint8_t Vx = (chip->op & 0x0F00) >> 8;
     uint8_t Vy = (chip->op & 0x00F0) >> 4;
     uint8_t kk = chip->op & 0x00FF;
+    uint16_t next_pc = chip->pc + 2;
     switch (chip->op & 0xF000)
     {
     case 0x0000:
@@ -65,7 +66,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
             break;
 
         case 0x00EE:
-            chip->pc = chip->stack[chip->sp];
+            next_pc = chip->stack[chip->sp];
             chip->sp--;
             break;
         
@@ -75,30 +76,30 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
         break;
     
     case 0x1000:
-        chip->pc = chip->op & 0x0FFF;
+        next_pc = chip->op & 0x0FFF;
         break;
 
     case 0x2000:
         chip->sp++;
         chip->stack[chip->sp] = chip->pc;
-        chip->pc = chip->op & 0X0FFF;
+        next_pc = chip->op & 0X0FFF;
         break;
 
     case 0x3000:
         if(chip->V[Vx] == kk){
-            chip->pc += 2;
+            next_pc += 2;
         }
         break;
 
     case 0x4000:
         if(chip->V[Vx] != kk){
-            chip->pc += 2;
+            next_pc += 2;
         }
         break;
 
     case 0x5000:
         if(chip->V[Vx] == chip->V[Vy]){
-            chip->pc += 2;
+            next_pc += 2;
         }
         break;
     
@@ -129,49 +130,46 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
             chip->V[Vx] = chip->V[Vx] ^ chip->V[Vy];
             break;
         
-        case 0x8004: // *
-            chip->V[Vx] = chip->V[Vx] + chip->V[Vy];
-            if(chip->V[Vx] > 0xFF){
+        case 0x8004: 
+            uint16_t sum = chip->V[Vx] + chip->V[Vy];
+            if(sum > 0xFF){
                 chip->V[0xF] = 1;
             }else{
                 chip->V[0xF] = 0;
             }
+            chip->V[Vx] = sum & 0xFF;
             break;
 
         case 0x8005:
-            chip->V[Vx] = chip->V[Vx] - chip->V[Vy];
             if(chip->V[Vx] > chip->V[Vy]){
-                chip->V[15] = 1;
+                chip->V[0xF] = 1;
             }else{
-                chip->V[15] = 0;
+                chip->V[0xF] = 0;
             }
-            break;
+            chip->V[Vx] = chip->V[Vx] - chip->V[Vy];
+                break;
 
         case 0x8006: /**/
             if((chip->V[Vx] << 7) == 0x80){
-                chip->V[15] = 1;
+                chip->V[0xF] = 1;
             }else{
-                chip->V[15] = 0;
+                chip->V[0xF] = 0;
             }
             chip->V[Vx] = chip->V[Vx] >> 1;
             break;
         
         case 0x8007:
             if(chip->V[Vy] > chip->V[Vx]){
-                chip->V[15] = 1;
+                chip->V[0xF] = 1;
             }else{
-                chip->V[15] = 0;
+                chip->V[0xF] = 0;
             }
             chip->V[Vx] = chip->V[Vx] - chip->V[Vy];
             break;
         
         case 0x800E:
-            if((chip->V[Vx] >> 7) == 1){
-                chip->V[15] = 1;
-            }else{
-                chip->V[15] = 0;
-            }
-            chip->V[Vx] = Vx << 1;
+            chip->V[0xF] = chip->V[Vx] >> 7;
+            chip->V[Vx] <<= 1;
             break;
 
 
@@ -183,7 +181,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
 
     case 0x9000:
         if(chip->V[Vx] != chip->V[Vy]){
-            chip->pc += 2;
+            next_pc += 2;
         }
         break;
 
@@ -192,7 +190,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
         break;
 
     case 0xB000:
-        chip->pc = (chip->op & 0x0FFF) + chip->V[0];
+        next_pc = (chip->op & 0x0FFF) + chip->V[0];
         break;
 
     case 0xC000:
@@ -234,13 +232,13 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
         {
         case 0xE09E:
             if(chip->keys[chip->V[Vx]] == 1){
-                chip->pc += 2;
+                next_pc += 2;
             }
             break;
         
         case 0xE0A1:
             if(chip->keys[chip->V[Vx]] == 0){
-                chip->pc += 2;
+                next_pc += 2;
             }
             break;
 
@@ -260,7 +258,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
             uint8_t key = get_pressed_key(chip);
             if(key != -1){
                 chip->V[Vx] = key;
-                chip->pc += 2;
+                next_pc += 2;
             }
             break;
 
@@ -283,18 +281,18 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
         case 0xF033:
             chip->memory[chip->I] = chip->V[Vx] / 100;
             chip->memory[chip->I + 1] = (chip->V[Vx] / 10) % 10;
-            chip->memory[chip->I + 2] = (chip->V[Vx] % 10;
+            chip->memory[chip->I + 2] = (chip->V[Vx] % 10);
             break;
 
         case 0xF055:
             for(int i = 0; i <= Vx; i++){
-                chip->memory[I + i] = chip->V[i];
+                chip->memory[chip->I + i] = chip->V[i];
             }
             break;
 
         case 0xF065:
             for(int i = 0; i <= Vx; i++){
-                chip->V[i] = chip->memory[I + i];
+                chip->V[i] = chip->memory[chip->I + i];
             }
             break;
             
@@ -307,9 +305,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
         break;
     }
     printf("Opcode: %X at PC: %X\n", chip->op, chip->pc);
-    if(!(chip->op & 0xF000 == 0x1000 || chip->op & 0xF000 == 0x2000 || chip->op & 0x00FF == 0x00EE || chip->op & 0xF000 == 0xB000 || chip->op & 0xF00F == 0xF00A)){
-        chip->pc += 2;
-    }
+    chip->pc = next_pc;
     if(chip->draw_flag == 1){
         update_SDL(chip, renderer);
     }
