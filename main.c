@@ -10,7 +10,7 @@ int main(){
     Chip8 chip;
     ini_chip8(&chip);
     ini_SDL(&window, &renderer);
-    loader_rom(&chip, "test.ch8");
+    loader_rom(&chip, "timer.ch8");
     load_fontset(&chip);
     int running = 1;
     SDL_Event event;
@@ -39,7 +39,7 @@ int main(){
             }
             delta_time -= timer_update;
         }
-
+	SDL_Delay(100);
         cycle_chip8(&chip, renderer);
     }
     SDL_DestroyRenderer(renderer);

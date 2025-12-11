@@ -66,8 +66,8 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
             break;
 
         case 0x00EE:
+	    chip->sp--;
             next_pc = chip->stack[chip->sp];
-            chip->sp--;
             break;
         
         default:
@@ -80,8 +80,8 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
         break;
 
     case 0x2000:
-        chip->sp++;
         chip->stack[chip->sp] = chip->pc;
+	chip->sp++;
         next_pc = chip->op & 0X0FFF;
         break;
 
@@ -149,13 +149,9 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
             chip->V[Vx] = chip->V[Vx] - chip->V[Vy];
                 break;
 
-        case 0x8006: /**/
-            if((chip->V[Vx] << 7) == 0x80){
-                chip->V[0xF] = 1;
-            }else{
-                chip->V[0xF] = 0;
-            }
-            chip->V[Vx] = chip->V[Vx] >> 1;
+        case 0x8006:
+            chip->V[0xF] = chip->V[Vx] & 0x01;
+	    chip->V[Vx] >>= 1;
             break;
         
         case 0x8007:
@@ -168,7 +164,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
             break;
         
         case 0x800E:
-            chip->V[0xF] = chip->V[Vx] >> 7;
+            chip->V[0xF] = (chip->V[Vx] >> 7) & 0x01;
             chip->V[Vx] <<= 1;
             break;
 
@@ -194,8 +190,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
         break;
 
     case 0xC000:
-        uint8_t random_byte = rand() % 256;
-        Vx = random_byte & kk;
+        chip->V[Vx] = (rand() % 256) & kk;
         break;
 
     case 0xD000:
@@ -251,7 +246,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
         switch (chip->op & 0xF0FF)
         {
         case 0xF007:
-            chip->delay_timer = chip->V[Vx];
+            chip->V[Vx] = chip->delay_timer;
             break;
 
         case 0xF00A:
