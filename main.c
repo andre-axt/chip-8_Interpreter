@@ -10,8 +10,7 @@ int main(){
     Chip8 chip;
     ini_chip8(&chip);
     ini_SDL(&window, &renderer);
-    loader_rom(&chip, "timer.ch8");
-    load_fontset(&chip);
+    loader_rom(&chip, "");
     int running = 1;
     SDL_Event event;
     const double timer_update = 1000 / 60;
@@ -19,12 +18,13 @@ int main(){
     int last_time = 0;
     double delta_time = 0;
     while (running){
-        while (SDL_PollEvent(&event)) {
-            if(event.type == SDL_QUIT){
-                running = 0;
-            }
-            handle_input(&chip, &event);
-        }
+	while(SDL_PollEvent(&event)) {    
+        	if(event.type == SDL_QUIT){
+        		running = 0;
+		}
+	}
+        
+	update_keys(&chip);
         now = SDL_GetPerformanceCounter();
         delta_time += (double)((now - last_time) * 1000 / (double)SDL_GetPerformanceFrequency());
         last_time = now;
@@ -39,8 +39,9 @@ int main(){
             }
             delta_time -= timer_update;
         }
-	SDL_Delay(100);
+        	
         cycle_chip8(&chip, renderer);
+	SDL_Delay(2);
     }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

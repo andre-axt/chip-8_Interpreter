@@ -5,10 +5,10 @@
 #include "graphic.h"
 
 void ini_chip8(Chip8* chip){
-    memset(chip->memory, 0, sizeof(MEMORY));
+    memset(chip->memory, 0, MEMORY);
     chip->pc = 0x200;
     memset(chip->V, 0, sizeof(NUM_REGISTERS));
-    memset(chip->display, 0, sizeof(WIDTH * HEIGHT));
+    memset(chip->display, 0, sizeof(chip->display));
     chip->I = 0;
     chip->sp = 0;
     chip->draw_flag = 0;
@@ -66,8 +66,8 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
             break;
 
         case 0x00EE:
-	    chip->sp--;
             next_pc = chip->stack[chip->sp];
+	    chip->sp--;
             break;
         
         default:
@@ -80,8 +80,8 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
         break;
 
     case 0x2000:
-        chip->stack[chip->sp] = chip->pc;
 	chip->sp++;
+        chip->stack[chip->sp] = chip->pc;
         next_pc = chip->op & 0X0FFF;
         break;
 
@@ -141,7 +141,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
             break;
 
         case 0x8005:
-            if(chip->V[Vx] > chip->V[Vy]){
+            if(chip->V[Vx] >= chip->V[Vy]){
                 chip->V[0xF] = 1;
             }else{
                 chip->V[0xF] = 0;
@@ -155,7 +155,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
             break;
         
         case 0x8007:
-            if(chip->V[Vy] > chip->V[Vx]){
+            if(chip->V[Vy] >= chip->V[Vx]){
                 chip->V[0xF] = 1;
             }else{
                 chip->V[0xF] = 0;
@@ -250,12 +250,20 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
             break;
 
         case 0xF00A:
-            uint8_t key = get_pressed_key(chip);
-            if(key != -1){
-                chip->V[Vx] = key;
-                next_pc += 2;
+            int key_pressed = -1;
+    	    for (int i = 0; i < 16; i++) {
+            	if (chip->keys[i]) {
+               	key_pressed = i;
+                break;
+                }
             }
-            break;
+    
+    	    if (key_pressed != -1) {
+            	chip->V[Vx] = key_pressed;
+    	    } else {
+        	next_pc = chip->pc;
+            }
+    	    break;
 
         case 0xF015:
             chip->delay_timer = chip->V[Vx];
@@ -275,7 +283,7 @@ void cycle_chip8(Chip8 *chip, SDL_Renderer* renderer){
 
         case 0xF033:
             chip->memory[chip->I] = chip->V[Vx] / 100;
-            chip->memory[chip->I + 1] = (chip->V[Vx] / 10) % 10;
+            chip->memory[chip->I + 1] = (chip->V[Vx] % 100) / 10;
             chip->memory[chip->I + 2] = (chip->V[Vx] % 10);
             break;
 
