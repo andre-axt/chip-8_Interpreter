@@ -1,5 +1,5 @@
 #include "chip8.h"
-#include "stdio.h"
+#include <stdio.h>
 #include "graphic.h"
 #include <SDL2/SDL.h>
 
@@ -10,7 +10,7 @@ int main(){
     Chip8 chip;
     ini_chip8(&chip);
     ini_SDL(&window, &renderer);
-    loader_rom(&chip, "");
+    loader_rom(&chip, "../roms/clock.ch8");
     int running = 1;
     SDL_Event event;
     const double timer_update = 1000 / 60;

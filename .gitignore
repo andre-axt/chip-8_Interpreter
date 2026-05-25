@@ -1,0 +1,83 @@
+# Executables
+*.exe
+*.out
+*.app
+bin/
+chip8_emulator
+
+# Object files
+*.o
+*.obj
+*.ko
+*.dll
+*.dylib
+
+# Build directories
+build/
+obj/
+Debug/
+Release/
+*.dSYM/
+
+# Backup files
+*~
+*.swp
+*.swo
+*.bak
+*.backup
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.code-workspace
+.project
+.classpath
+.cproject
+.settings/
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# Logs
+*.log
+*.tmp
+
+# Debug files
+*.gcno
+*.gcda
+*.gcov
+gmon.out
+
+# Dependencies
+*.d
+
+# Tags
+tags
+TAGS
+
+# User configuration files
+*.user
+*.userprefs
+
+# Test files
+test_*
+*_test
+
+# Core dumps
+core.*
+core
+
+# Compression files
+*.zip
+*.tar
+*.gz
+*.7z
+*.rar
+
+# SDL2 specific (if you generate any)
+*.bmp
+*.png
+*.wav
